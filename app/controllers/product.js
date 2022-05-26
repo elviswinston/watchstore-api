@@ -29,6 +29,7 @@ exports.create = async (req, res) => {
         dial_color,
         price,
         quantity,
+        image,
       } = req.body;
 
       dbConnect.collection("products").insertOne(
@@ -47,6 +48,7 @@ exports.create = async (req, res) => {
           dial_color,
           price,
           quantity,
+          image,
           status: false,
         },
         (error, result) => {
@@ -101,6 +103,7 @@ exports.update = async (req, res) => {
         dial_color,
         price,
         quantity,
+        image,
       } = req.body;
       const _id = req.params.productId;
 
@@ -122,6 +125,7 @@ exports.update = async (req, res) => {
             dial_color,
             price,
             quantity,
+            image,
           },
         },
         (error, result) => {
