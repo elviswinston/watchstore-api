@@ -17,7 +17,7 @@ exports.create = async (req, res) => {
       const { name } = req.body;
 
       dbConnect
-        .collection("brands")
+        .collection("straps")
         .insertOne({ name, status: false }, (error, result) => {
           if (error) {
             return res.json({
@@ -55,13 +55,13 @@ exports.update = async (req, res) => {
     try {
       const dbConnect = dbo.getDb();
       const { name } = req.body;
-      const _id = req.params.branchId;
+      const _id = req.params.strapId;
 
       dbConnect
-        .collection("brands")
+        .collection("straps")
         .updateOne(
           { _id: ObjectId(_id) },
-          { $set: { name } },
+          { $set: { name: name } },
           (error, result) => {
             if (error) {
               return res.json({
@@ -100,10 +100,10 @@ exports.updateStatus = async (req, res) => {
     try {
       const dbConnect = dbo.getDb();
       const { status } = req.body;
-      const _id = req.params.branchId;
+      const _id = req.params.strapId;
 
       dbConnect
-        .collection("brands")
+        .collection("straps")
         .updateOne(
           { _id: ObjectId(_id) },
           { $set: { status: status || false } },
@@ -146,7 +146,7 @@ exports.getAll = async (req, res) => {
       const dbConnect = dbo.getDb();
 
       dbConnect
-        .collection("brands")
+        .collection("straps")
         .find({})
         .limit(50)
         .toArray(function (err, result) {
@@ -156,7 +156,7 @@ exports.getAll = async (req, res) => {
             res.json({
               success: true,
               data: result,
-              message: "Get list brand success",
+              message: "Get list strap success",
             });
           }
         });

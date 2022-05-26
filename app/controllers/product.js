@@ -14,11 +14,42 @@ exports.create = async (req, res) => {
   } else {
     try {
       const dbConnect = dbo.getDb();
-      const { name } = req.body;
+      const {
+        name,
+        description,
+        sku,
+        origin,
+        sex,
+        branch_id,
+        glass_id,
+        machine_id,
+        strap_id,
+        dial_diameter,
+        dial_thickness,
+        dial_color,
+        price,
+        quantity,
+      } = req.body;
 
-      dbConnect
-        .collection("brands")
-        .insertOne({ name, status: false }, (error, result) => {
+      dbConnect.collection("products").insertOne(
+        {
+          name,
+          description,
+          sku,
+          origin,
+          sex,
+          branch_id,
+          glass_id,
+          machine_id,
+          strap_id,
+          dial_diameter,
+          dial_thickness,
+          dial_color,
+          price,
+          quantity,
+          status: false,
+        },
+        (error, result) => {
           if (error) {
             return res.json({
               success: false,
@@ -32,7 +63,8 @@ exports.create = async (req, res) => {
             data: result,
             message: "Create successfully.",
           });
-        });
+        }
+      );
     } catch (error) {
       res.json({
         success: false,
@@ -54,30 +86,60 @@ exports.update = async (req, res) => {
   } else {
     try {
       const dbConnect = dbo.getDb();
-      const { name } = req.body;
-      const _id = req.params.branchId;
+      const {
+        name,
+        description,
+        sku,
+        origin,
+        sex,
+        branch_id,
+        glass_id,
+        machine_id,
+        strap_id,
+        dial_diameter,
+        dial_thickness,
+        dial_color,
+        price,
+        quantity,
+      } = req.body;
+      const _id = req.params.productId;
 
-      dbConnect
-        .collection("brands")
-        .updateOne(
-          { _id: ObjectId(_id) },
-          { $set: { name } },
-          (error, result) => {
-            if (error) {
-              return res.json({
-                success: false,
-                errors: error,
-                message: "Update failed.",
-              });
-            }
-
-            res.json({
-              success: true,
-              data: result,
-              message: "Update successfully.",
+      dbConnect.collection("products").updateOne(
+        { _id: ObjectId(_id) },
+        {
+          $set: {
+            name,
+            description,
+            sku,
+            origin,
+            sex,
+            branch_id,
+            glass_id,
+            machine_id,
+            strap_id,
+            dial_diameter,
+            dial_thickness,
+            dial_color,
+            price,
+            quantity,
+          },
+        },
+        (error, result) => {
+          if (error) {
+            return res.json({
+              success: false,
+              errors: error,
+              message: "Update failed.",
             });
           }
-        );
+
+          res.json({
+            success: true,
+            data: result,
+            message: "Update successfully.",
+          });
+        }
+      );
     } catch (error) {
       res.json({
         success: false,
@@ -100,7 +162,7 @@ exports.updateStatus = async (req, res) => {
     try {
       const dbConnect = dbo.getDb();
       const { status } = req.body;
-      const _id = req.params.branchId;
+      const _id = req.params.productId;
 
       dbConnect
         .collection("brands")
@@ -146,7 +208,7 @@ exports.getAll = async (req, res) => {
       const dbConnect = dbo.getDb();
 
       dbConnect
-        .collection("brands")
+        .collection("products")
         .find({})
         .limit(50)
         .toArray(function (err, result) {
@@ -156,7 +218,7 @@ exports.getAll = async (req, res) => {
             res.json({
               success: true,
               data: result,
-              message: "Get list brand success",
+              message: "Get list product success",
             });
           }
         });
