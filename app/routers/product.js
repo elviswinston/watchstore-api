@@ -3,9 +3,9 @@ const router = express.Router();
 
 const productController = require("../controllers/product");
 
-router.get("/", productController.getAll);
+router.get("/", productController.list);
 router.post("/", productController.create);
 router.put("/:productId", productController.update);
-router.put("/updateStatus/:productId", productController.updateStatus);
+// router.put("/updateStatus/:productId", productController.updateStatus);
 
 module.exports = router;

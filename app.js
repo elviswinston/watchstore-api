@@ -4,7 +4,9 @@ const express = require("express");
 const cors = require("cors");
 const createError = require(`http-errors`);
 const app = express();
-const dbo = require("./app/db/conn");
+
+const mongoose = require("mongoose");
+const { DB_URI, PORT } = process.env;
 
 app.use(cors());
 app.use(
@@ -31,14 +33,11 @@ app
     res.status(httpError.statusCode || 500).send(httpError);
   });
 
-dbo.connectToServer(function (err) {
-  if (err) {
-    console.error(err);
-    process.exit();
-  }
+mongoose.connect(DB_URI);
+mongoose.connection.on("connected", () => {
+  console.log("Connected to MongoDB Atlas");
+});
 
-  // start the Express server
-  app.listen(process.env.PORT, () => {
-    console.log(`Server is running on port: ${process.env.PORT}`);
-  });
+app.listen(PORT, () => {
+  console.log(`Server is running on port: ${PORT}`);
 });

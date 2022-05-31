@@ -1,19 +1,14 @@
 const { validationResult } = require("express-validator");
-const { ObjectId } = require("mongodb");
-
-const dbo = require("../db/conn");
 
 exports.create = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      error: errors.array(),
-      message: "Validate Errors",
+    return res.status(400).send({
+      message: errors.array(),
     });
   } else {
     try {
-      const dbConnect = dbo.getDb();
+      let product = new Product();
       const {
         name,
         description,
@@ -32,46 +27,35 @@ exports.create = async (req, res) => {
         image,
       } = req.body;
 
-      dbConnect.collection("products").insertOne(
-        {
-          name,
-          description,
-          sku,
-          origin,
-          sex,
-          branch_id,
-          glass_id,
-          machine_id,
-          strap_id,
-          dial_diameter,
-          dial_thickness,
-          dial_color,
-          price,
-          quantity,
-          image,
-          status: false,
-        },
-        (error, result) => {
-          if (error) {
-            return res.json({
-              success: false,
-              errors: error,
-              message: "Create failed.",
-            });
-          }
+      product.name = name;
+      product.description = description;
+      product.sku = sku;
+      product.origin = origin;
+      product.sex = sex;
+      product.brand = brand_id;
+      product.machine = machine_id;
+      product.strap = strap_id;
+      product.glass = glass_id;
+      product.dial_diameter = dial_diameter;
+      product.dial_parameter = dial_parameter;
+      product.dial_color = dial_color;
+      product.price = price;
+      product.quantity = quantity;
 
-          res.json({
-            success: true,
-            data: result,
-            message: "Create successfully.",
+      product.save((err, product) => {
+        if (err) {
+          return res.status(400).send({
+            message: "Create failed",
+          });
+        } else {
+          return res.status(201).send({
+            message: "Product added successfully.",
           });
         }
-      );
+      });
     } catch (error) {
-      res.json({
-        success: false,
-        errors: error,
-        message: "Error happened.",
+      res.status(400).send({
+        message: "Error: " + error,
       });
     }
   }
@@ -80,157 +64,69 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      error: errors.array(),
-      message: "Validate Errors",
+    return res.status(400).send({
+      message: errors.array(),
     });
   } else {
     try {
-      const dbConnect = dbo.getDb();
-      const {
-        name,
-        description,
-        sku,
-        origin,
-        sex,
-        branch_id,
-        glass_id,
-        machine_id,
-        strap_id,
-        dial_diameter,
-        dial_thickness,
-        dial_color,
-        price,
-        quantity,
-        image,
-      } = req.body;
-      const _id = req.params.productId;
-
-      dbConnect.collection("products").updateOne(
-        { _id: ObjectId(_id) },
+      Product.findByIdAndUpdate(
+        req.params.productId,
         {
-          $set: {
-            name,
-            description,
-            sku,
-            origin,
-            sex,
-            branch_id,
-            glass_id,
-            machine_id,
-            strap_id,
-            dial_diameter,
-            dial_thickness,
-            dial_color,
-            price,
-            quantity,
-            image,
-          },
+          name: req.body.name,
+          description: req.body.description,
+          sku: req.body.sku,
+          origin: req.body.origin,
+          sex: req.body.sex,
+          brand: req.body.brand_id,
+          glass: req.body.glass_id,
+          machine: req.body.machine_id,
+          strap: req.body.strap_id,
+          dial_diamete: req.body.dial_diameter,
+          dial_thickness: req.body.dial_thickness,
+          dial_color: req.body.dial_color,
+          price: req.body.price,
+          quantity: req.body.quantity,
         },
-        (error, result) => {
-          if (error) {
-            return res.json({
-              success: false,
-              errors: error,
-              message: "Update failed.",
+        (err, data) => {
+          if (err) {
+            return res.status(400).send({
+              message: "Update failed!",
+            });
+          } else {
+            res.status(200).send({
+              message: "Update successfully!",
             });
           }
-
-          res.json({
-            success: true,
-            data: result,
-            message: "Update successfully.",
-          });
         }
       );
     } catch (error) {
-      res.json({
-        success: false,
-        errors: error,
-        message: "Error happened.",
+      res.status(400).send({
+        message: "Error: " + error,
       });
     }
   }
 };
 
-exports.updateStatus = async (req, res) => {
+exports.list = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      error: errors.array(),
-      message: "Validate Errors",
+    return res.status(400).send({
+      message: errors.array(),
     });
   } else {
     try {
-      const dbConnect = dbo.getDb();
-      const { status } = req.body;
-      const _id = req.params.productId;
-
-      dbConnect
-        .collection("brands")
-        .updateOne(
-          { _id: ObjectId(_id) },
-          { $set: { status: status || false } },
-          (error, result) => {
-            if (error) {
-              return res.json({
-                success: false,
-                errors: error,
-                message: "Update failed.",
-              });
-            }
-
-            res.json({
-              success: true,
-              data: result,
-              message: "Update successfully.",
-            });
-          }
-        );
-    } catch (error) {
-      res.json({
-        success: false,
-        errors: error,
-        message: "Error happened.",
+      Product.find((err, data) => {
+        if (err) {
+          return res.status(400).send({
+            message: "Get list product failed",
+          });
+        } else {
+          res.status(200).send(data);
+        }
       });
-    }
-  }
-};
-
-exports.getAll = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      error: errors.array(),
-      message: "Validate Errors",
-    });
-  } else {
-    try {
-      const dbConnect = dbo.getDb();
-
-      dbConnect
-        .collection("products")
-        .find({})
-        .limit(50)
-        .toArray(function (err, result) {
-          if (err) {
-            res.status(400).send("Error fetching listings!");
-          } else {
-            res.json({
-              success: true,
-              data: result,
-              message: "Get list product success",
-            });
-          }
-        });
     } catch (error) {
-      res.json({
-        success: false,
-        errors: error,
-        message: "Error happened.",
+      res.status(400).send({
+        message: "Error: " + error,
       });
     }
   }

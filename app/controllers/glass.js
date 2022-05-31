@@ -1,43 +1,33 @@
 const { validationResult } = require("express-validator");
-const { ObjectId } = require("mongodb");
 
-const dbo = require("../db/conn");
+const Glass = require("../models/glass");
 
 exports.create = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      error: errors.array(),
-      message: "Validate Errors",
+    return res.status(400).send({
+      message: errors.array(),
     });
   } else {
     try {
-      const dbConnect = dbo.getDb();
-      const { name } = req.body;
+      let glass = new Glass();
+      glass.name = req.body.name;
+      glass.status = false;
 
-      dbConnect
-        .collection("glasses")
-        .insertOne({ name, status: false }, (error, result) => {
-          if (error) {
-            return res.json({
-              success: false,
-              errors: error,
-              message: "Create failed.",
-            });
-          }
-
-          res.json({
-            success: true,
-            data: result,
-            message: "Create successfully.",
+      glass.save((err, glass) => {
+        if (err) {
+          return res.status(400).send({
+            message: "Create failed",
           });
-        });
+        } else {
+          return res.status(201).send({
+            message: "Glass added successfully.",
+          });
+        }
+      });
     } catch (error) {
-      res.json({
-        success: false,
-        errors: error,
-        message: "Error happened.",
+      return res.status(400).send({
+        message: "Error: " + error,
       });
     }
   }
@@ -46,125 +36,54 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      error: errors.array(),
-      message: "Validate Errors",
+    return res.status(400).send({
+      message: errors.array(),
     });
   } else {
     try {
-      const dbConnect = dbo.getDb();
-      const { name, status } = req.body;
-      const _id = req.params.glassId;
-
-      dbConnect
-        .collection("glasses")
-        .updateOne(
-          { _id: ObjectId(_id) },
-          { $set: { name: name } },
-          (error, result) => {
-            if (error) {
-              return res.json({
-                success: false,
-                errors: error,
-                message: "Update failed.",
-              });
-            }
-
-            res.json({
-              success: true,
-              data: result,
-              message: "Update successfully.",
-            });
-          }
-        );
-    } catch (error) {
-      res.json({
-        success: false,
-        errors: error,
-        message: "Error happened.",
-      });
-    }
-  }
-};
-
-exports.updateStatus = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      error: errors.array(),
-      message: "Validate Errors",
-    });
-  } else {
-    try {
-      const dbConnect = dbo.getDb();
-      const { status } = req.body;
-      const _id = req.params.glassId;
-
-      dbConnect
-        .collection("glasses")
-        .updateOne(
-          { _id: ObjectId(_id) },
-          { $set: { status: status || false } },
-          (error, result) => {
-            if (error) {
-              return res.json({
-                success: false,
-                errors: error,
-                message: "Update failed.",
-              });
-            }
-
-            res.json({
-              success: true,
-              data: result,
-              message: "Update successfully.",
-            });
-          }
-        );
-    } catch (error) {
-      res.json({
-        success: false,
-        errors: error,
-        message: "Error happened.",
-      });
-    }
-  }
-};
-
-exports.getAll = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      error: errors.array(),
-      message: "Validate Errors",
-    });
-  } else {
-    try {
-      const dbConnect = dbo.getDb();
-
-      dbConnect
-        .collection("glasses")
-        .find({})
-        .limit(50)
-        .toArray(function (err, result) {
+      Glass.findByIdAndUpdate(
+        req.params.glassId,
+        { name: req.body.name },
+        (err, data) => {
           if (err) {
-            res.status(400).send("Error fetching listings!");
+            return res.status(400).send({
+              message: "Update failed!",
+            });
           } else {
-            res.json({
-              success: true,
-              data: result,
-              message: "Get list glass success",
+            res.status(200).send({
+              message: "Update successfully!",
             });
           }
-        });
+        }
+      );
     } catch (error) {
-      res.json({
-        success: false,
-        errors: error,
-        message: "Error happened.",
+      res.status(400).send({
+        message: "Error: " + error,
+      });
+    }
+  }
+};
+
+exports.list = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({
+      message: errors.array(),
+    });
+  } else {
+    try {
+      Glass.find((err, data) => {
+        if (err) {
+          return res.status(400).send({
+            message: "Get list glass failed",
+          });
+        } else {
+          res.status(200).send(data);
+        }
+      });
+    } catch (error) {
+      res.status(400).send({
+        message: "Error: " + error,
       });
     }
   }
