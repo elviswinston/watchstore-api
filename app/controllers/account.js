@@ -28,7 +28,7 @@ exports.login = async (req, res) => {
         }
       });
     } catch (error) {
-      res.status(200).send({
+      res.status(400).send({
         message: "Error: " + error,
       });
     }
@@ -59,7 +59,7 @@ exports.register = async (req, res) => {
         }
       });
     } catch (error) {
-      res.status(200).send({
+      res.status(400).send({
         message: "Error: " + error,
       });
     }
@@ -93,7 +93,7 @@ exports.updateProfile = async (req, res) => {
         }
       );
     } catch (error) {
-      res.status(200).send({
+      res.status(400).send({
         message: "Error: " + error,
       });
     }

@@ -7,6 +7,15 @@ const CartSchema = mongoose.Schema(
       ref: "Account",
       require: true,
     },
+    product: {
+      type: mongoose.SchemaType.ObjectId,
+      ref: "Product",
+      require: true,
+    },
+    amount: {
+      type: Number,
+      require: true,
+    },
   },
   {
     versionKey: false,
