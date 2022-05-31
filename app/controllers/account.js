@@ -1,7 +1,6 @@
 const { validationResult } = require("express-validator");
-const mongoose = require("mongoose");
 
-const Account = this.register("../models/account");
+const Account = require("../models/account");
 
 exports.login = async (req, res) => {
   const errors = validationResult(req);
@@ -59,6 +58,40 @@ exports.register = async (req, res) => {
           });
         }
       });
+    } catch (error) {
+      res.status(200).send({
+        message: "Error: " + error,
+      });
+    }
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({
+      message: errors.array(),
+    });
+  } else {
+    try {
+      Account.findByIdAndUpdate(
+        req.params.accountId,
+        {
+          fullname: req.body.fullname,
+          phone: req.params.phone,
+        },
+        (err, data) => {
+          if (err) {
+            return res.status(400).send({
+              message: "Update profile failed!",
+            });
+          } else {
+            res.status(200).send({
+              message: "Update profile successfully!",
+            });
+          }
+        }
+      );
     } catch (error) {
       res.status(200).send({
         message: "Error: " + error,

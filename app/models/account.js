@@ -20,9 +20,11 @@ AccountSchema.methods.setPassword = function (password) {
     .toString(`hex`);
 };
 
-UserSchema.methods.validPassword = function (password) {
+AccountSchema.methods.validPassword = function (password) {
   var hash = crypto
     .pbkdf2Sync(password, this.salt, 1000, 64, `sha512`)
     .toString(`hex`);
   return this.hash === hash;
 };
+
+module.exports = mongoose.model("Account", AccountSchema);

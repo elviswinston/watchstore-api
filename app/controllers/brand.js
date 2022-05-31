@@ -2,6 +2,22 @@ const { validationResult } = require("express-validator");
 
 const Brand = require("../models/brand");
 
+exports.example = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({
+      message: errors.array(),
+    });
+  } else {
+    try {
+    } catch (error) {
+      res.status(200).send({
+        message: "Error: " + error,
+      });
+    }
+  }
+};
+
 exports.create = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
