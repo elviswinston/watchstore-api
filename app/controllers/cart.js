@@ -3,22 +3,6 @@ const { validationResult } = require("express-validator");
 const Cart = require("../models/cart");
 const Product = require("../models/product");
 
-exports.example = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).send({
-      message: errors.array(),
-    });
-  } else {
-    try {
-    } catch (error) {
-      res.status(200).send({
-        message: "Error: " + error,
-      });
-    }
-  }
-};
-
 exports.create = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -32,7 +16,7 @@ exports.create = async (req, res) => {
       cart.account = req.body.account_id;
       cart.amount = req.body.amount;
 
-      cart.save((err, cart) => {
+      cart.save((err, Cart) => {
         if (err) {
           return res.status(400).send({
             message: "Create failed",

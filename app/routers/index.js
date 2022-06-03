@@ -8,12 +8,13 @@ const machineRouter = require("./machine");
 const strapRouter = require("./strap");
 const productRouter = require("./product");
 const accountRouter = require("./account");
+const orderRouter = require("./order");
 
 router.use("/api/brands", brandRouter);
 router.use("/api/glasses", glassRouter);
 router.use("/api/machines", machineRouter);
 router.use("/api/straps", strapRouter);
 router.use("/api/products", productRouter);
-router.use("/api/accounts", accountRouter);
+router.use("/api/orders", orderRouter);
 
 module.exports = router;
