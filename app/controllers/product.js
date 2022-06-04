@@ -15,7 +15,7 @@ exports.create = async (req, res) => {
         sku,
         origin,
         sex,
-        branch_id,
+        brand_id,
         glass_id,
         machine_id,
         strap_id,
@@ -37,7 +37,7 @@ exports.create = async (req, res) => {
       product.strap = strap_id;
       product.glass = glass_id;
       product.dial_diameter = dial_diameter;
-      product.dial_parameter = dial_parameter;
+      product.dial_thickness = dial_thickness;
       product.dial_color = dial_color;
       product.price = price;
       product.quantity = quantity;
@@ -115,7 +115,57 @@ exports.list = async (req, res) => {
     });
   } else {
     try {
+      Product.find({ status: true }, (err, data) => {
+        if (err) {
+          return res.status(400).send({
+            message: "Get list product failed",
+          });
+        } else {
+          res.status(200).send(data);
+        }
+      });
+    } catch (error) {
+      res.status(400).send({
+        message: "Error: " + error,
+      });
+    }
+  }
+};
+
+exports.listAll = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({
+      message: errors.array(),
+    });
+  } else {
+    try {
       Product.find((err, data) => {
+        if (err) {
+          return res.status(400).send({
+            message: "Get list product failed",
+          });
+        } else {
+          res.status(200).send(data);
+        }
+      });
+    } catch (error) {
+      res.status(400).send({
+        message: "Error: " + error,
+      });
+    }
+  }
+};
+
+exports.listByBrand = (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({
+      message: errors.array(),
+    });
+  } else {
+    try {
+      Product.find({ brand: req.body.brand_id }, (err, data) => {
         if (err) {
           return res.status(400).send({
             message: "Get list product failed",

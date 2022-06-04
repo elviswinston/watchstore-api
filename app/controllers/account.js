@@ -1,4 +1,5 @@
 const { validationResult } = require("express-validator");
+const jwt = require("jsonwebtoken");
 
 const Account = require("../models/account");
 
@@ -12,18 +13,12 @@ exports.login = async (req, res) => {
     try {
       Account.findOne({ username: req.body.username }, function (err, user) {
         if (user === null) {
-          return res.status(400).send({
-            message: "User not found.",
-          });
+          return res.status(400).send("Không tìm thấy tài khoản");
         } else {
           if (user.validPassword(req.body.password)) {
-            return res.status(201).send({
-              message: "User Logged In",
-            });
+            return res.status(200).send(user);
           } else {
-            return res.status(400).send({
-              message: "Wrong Password",
-            });
+            return res.status(400).send("Sai mật khẩu");
           }
         }
       });
@@ -46,8 +41,9 @@ exports.register = async (req, res) => {
       let account = new Account();
       account.username = req.body.username;
       account.setPassword(req.body.password);
+      account.role = "CUSTOMER";
 
-      account.save((err, account) => {
+      account.save((err) => {
         if (err) {
           return res.status(400).send({
             message: "Failed to add account.",

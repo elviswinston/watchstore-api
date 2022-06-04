@@ -6,18 +6,18 @@ const AccountSchema = mongoose.Schema({
     type: String,
     require: true,
   },
-  fullname: String,
+  fullName: String,
   phone: String,
   hash: String,
   salt: String,
+  role: String,
 });
 
 AccountSchema.methods.setPassword = function (password) {
   this.salt = crypto.randomBytes(16).toString("hex");
-
   this.hash = crypto
-    .pbkdf2(password, this.salt, 1000, 64, `sha512`)
-    .toString(`hex`);
+    .pbkdf2Sync(password, this.salt, 1000, 64, `sha512`)
+    .toString("hex");
 };
 
 AccountSchema.methods.validPassword = function (password) {

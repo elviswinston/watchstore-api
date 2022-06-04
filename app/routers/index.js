@@ -16,5 +16,6 @@ router.use("/api/machines", machineRouter);
 router.use("/api/straps", strapRouter);
 router.use("/api/products", productRouter);
 router.use("/api/orders", orderRouter);
+router.use("/api/accounts", accountRouter);
 
 module.exports = router;

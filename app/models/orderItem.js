@@ -3,13 +3,13 @@ const mongoose = require("mongoose");
 const OrderItemSchema = mongoose.Schema(
   {
     order: {
-      type: mongoose.SchemaType.ObjectId,
+      type: mongoose.SchemaTypes.ObjectId,
       ref: "Account",
       require: false,
       default: null,
     },
     product: {
-      type: mongoose.SchemaType.ObjectId,
+      type: mongoose.SchemaTypes.ObjectId,
       ref: "Product",
       require: true,
     },

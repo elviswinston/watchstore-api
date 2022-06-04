@@ -186,7 +186,7 @@ exports.success = async (req, res) => {
   }
 };
 
-exports.cancelOrder = async (req, res) => {
+exports.cancel = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).send({
