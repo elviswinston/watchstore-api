@@ -1,7 +1,7 @@
 const { validationResult } = require("express-validator");
+const mongoose = require("mongoose");
 
 const Cart = require("../models/cart");
-const Product = require("../models/product");
 
 exports.create = async (req, res) => {
   const errors = validationResult(req);
@@ -11,22 +11,31 @@ exports.create = async (req, res) => {
     });
   } else {
     try {
-      let cart = new Cart();
-      cart.product = req.body.product_id;
-      cart.account = req.body.account_id;
-      cart.amount = req.body.amount;
+      const existedCart = await Cart.findOne({
+        product: req.body.product_id,
+      }).exec();
+      if (existedCart) {
+        return res.status(400).send({
+          message: "Sản phẩm đã có trong giỏ hàng",
+        });
+      } else {
+        let cart = new Cart();
+        cart.product = req.body.product_id;
+        cart.account = req.body.account_id;
+        cart.amount = req.body.amount;
 
-      cart.save((err, Cart) => {
-        if (err) {
-          return res.status(400).send({
-            message: "Create failed",
-          });
-        } else {
-          return res.status(201).send({
-            message: "Cart added successfully.",
-          });
-        }
-      });
+        cart.save((err, data) => {
+          if (err) {
+            return res.status(400).send({
+              message: "Thêm vào giỏ hàng thất bại",
+            });
+          } else {
+            return res.status(200).send({
+              message: "Thêm vào giỏ hàng thành công",
+            });
+          }
+        });
+      }
     } catch (error) {
       res.status(200).send({
         message: "Error: " + error,
@@ -43,21 +52,19 @@ exports.updateAmount = async (req, res) => {
     });
   } else {
     try {
-      const cart = await Cart.findById(req.body.cartId).exec();
-      cart.populated("account");
+      const cart = await Cart.findById(req.params.cartId)
+        .populate("product")
+        .exec();
 
-      const product = await Product.findById(cart.product).exec();
-      if (product.quantity < req.boy.amount) {
-        return res.status(200).send({
-          status: -1,
+      if (cart.product.quantity < req.body.amount) {
+        return res.status(400).send({
           message: "Sản phẩm đã hết hàng",
         });
       }
-
       Cart.findByIdAndUpdate(
         req.params.cartId,
-        { amount: req },
-        (err, cart) => {
+        { amount: req.body.amount },
+        (err, data) => {
           if (err) {
             return res.status(400).send({
               message: "Update failed",
@@ -112,15 +119,25 @@ exports.list = async (req, res) => {
     });
   } else {
     try {
-      Cart.find({ account: req.params.accountId }, (err, data) => {
-        if (err) {
-          return res.status(400).send({
-            message: "Get list cart failed",
-          });
-        } else {
-          return res.status(200).send(data);
-        }
-      });
+      Cart.find({ account: req.params.accountId })
+        .lean()
+        .populate("product")
+        .exec((err, data) => {
+          if (err) {
+            return res.status(400).send({
+              message: "Get list cart failed",
+            });
+          } else {
+            data = data.map((item) => ({
+              ...item,
+              product_id: item.product._id,
+              product_name: item.product.name,
+              product_price: item.product.price,
+              image: item.product.image,
+            }));
+            return res.status(200).send(data);
+          }
+        });
     } catch (error) {
       res.status(200).send({
         message: "Error: " + error,

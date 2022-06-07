@@ -5,6 +5,6 @@ const cartController = require("../controllers/cart");
 
 router.get("/:accountId", cartController.list);
 router.post("/", cartController.create);
-router.put("/:cartId", cartController.update);
+router.put("/:cartId", cartController.updateAmount);
 
 module.exports = router;

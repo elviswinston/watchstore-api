@@ -1,4 +1,5 @@
 const { validationResult } = require("express-validator");
+const { default: mongoose } = require("mongoose");
 
 const Order = require("../models/order");
 const OrderItem = require("../models/orderItem");
@@ -75,15 +76,30 @@ exports.create = async (req, res) => {
             message: "Create failed",
           });
         } else {
-          req.body.list_item.forEach((item) => {
+          req.body.list_item.forEach(async (item) => {
             var order_item = new OrderItem();
             order_item.order = Order.id;
-            order_item.product = item.product;
+            order_item.name = item.name;
             order_item.amount = item.amount;
+            order_item.price = item.price;
+            order_item.image = item.image;
 
+            var product = await mongoose
+              .model("Product")
+              .findByIdAndUpdate(item.product_id)
+              .exec();
+            product.quantity = product.quantity - order_item.amount;
+
+            mongoose.model("Cart").findByIdAndDelete(item.cart_id).exec();
+
+            product.save();
             order_item.save();
           });
         }
+      });
+
+      return res.status(200).send({
+        message: "Success",
       });
     } catch (error) {
       res.status(200).send({
@@ -104,7 +120,7 @@ exports.confirm = async (req, res) => {
       Order.findByIdAndUpdate(
         req.params.orderId,
         { status: "PENDING_SHIP" },
-        (err, order) => {
+        (err, data) => {
           if (err) {
             return res.status(400).send({
               message: "Update failed",
@@ -135,7 +151,7 @@ exports.delivery = async (req, res) => {
       Order.findByIdAndUpdate(
         req.params.orderId,
         { status: "SHIPPING" },
-        (err, order) => {
+        (err, data) => {
           if (err) {
             return res.status(400).send({
               message: "Update failed",
@@ -166,7 +182,7 @@ exports.success = async (req, res) => {
       Order.findByIdAndUpdate(
         req.params.orderId,
         { status: "SUCCESS" },
-        (err, order) => {
+        (err, data) => {
           if (err) {
             return res.status(400).send({
               message: "Update failed",
@@ -197,7 +213,7 @@ exports.cancel = async (req, res) => {
       Order.findByIdAndUpdate(
         req.params.orderId,
         { status: "CANCEL" },
-        (err, order) => {
+        (err, data) => {
           if (err) {
             return res.status(400).send({
               message: "Update failed",

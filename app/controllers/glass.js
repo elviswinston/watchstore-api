@@ -14,15 +14,13 @@ exports.create = async (req, res) => {
       glass.name = req.body.name;
       glass.status = false;
 
-      glass.save((err, glass) => {
+      glass.save((err, data) => {
         if (err) {
           return res.status(400).send({
             message: "Create failed",
           });
         } else {
-          return res.status(201).send({
-            message: "Glass added successfully.",
-          });
+          return res.status(200).send(data);
         }
       });
     } catch (error) {
@@ -44,15 +42,14 @@ exports.update = async (req, res) => {
       Glass.findByIdAndUpdate(
         req.params.glassId,
         { name: req.body.name },
+        { new: true },
         (err, data) => {
           if (err) {
             return res.status(400).send({
               message: "Update failed!",
             });
           } else {
-            res.status(200).send({
-              message: "Update successfully!",
-            });
+            res.status(200).send(data);
           }
         }
       );
@@ -83,6 +80,33 @@ exports.list = async (req, res) => {
       });
     } catch (error) {
       res.status(400).send({
+        message: "Error: " + error,
+      });
+    }
+  }
+};
+
+exports.delete = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({
+      message: errors.array(),
+    });
+  } else {
+    try {
+      Glass.findByIdAndDelete(req.params.glassId, null, (err, data) => {
+        if (err) {
+          return res.status(400).send({
+            message: "Delete glass failed",
+          });
+        } else {
+          res.status(200).send({
+            message: "Glass delete successfully",
+          });
+        }
+      });
+    } catch (error) {
+      res.status(200).send({
         message: "Error: " + error,
       });
     }

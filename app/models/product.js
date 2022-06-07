@@ -50,7 +50,7 @@ const ProductSchema = mongoose.Schema(
       require: true,
     },
     dial_color: {
-      type: Number,
+      type: String,
       require: true,
     },
     price: {
@@ -65,8 +65,8 @@ const ProductSchema = mongoose.Schema(
       type: String,
       require: true,
     },
-    status: {
-      type: Boolean,
+    cloudinary_id: {
+      type: String,
       require: true,
     },
   },

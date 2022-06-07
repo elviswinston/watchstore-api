@@ -14,15 +14,13 @@ exports.create = async (req, res) => {
       machine.name = req.body.name;
       machine.status = false;
 
-      machine.save((err, machine) => {
+      machine.save((err, data) => {
         if (err) {
           return res.status(400).send({
             message: "Create failed",
           });
         } else {
-          return res.status(201).send({
-            message: "Machine added successfully.",
-          });
+          return res.status(200).send(data);
         }
       });
     } catch (error) {
@@ -44,15 +42,14 @@ exports.update = async (req, res) => {
       Machine.findByIdAndUpdate(
         req.params.machineId,
         { name: req.body.name },
+        { new: true },
         (err, data) => {
           if (err) {
             return res.status(400).send({
               message: "Update failed!",
             });
           } else {
-            res.status(200).send({
-              message: "Update successfully!",
-            });
+            res.status(200).send(data);
           }
         }
       );
@@ -83,6 +80,33 @@ exports.list = async (req, res) => {
       });
     } catch (error) {
       res.status(400).send({
+        message: "Error: " + error,
+      });
+    }
+  }
+};
+
+exports.delete = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({
+      message: errors.array(),
+    });
+  } else {
+    try {
+      Machine.findByIdAndDelete(req.params.machineId, null, (err, data) => {
+        if (err) {
+          return res.status(400).send({
+            message: "Delete machine failed",
+          });
+        } else {
+          res.status(200).send({
+            message: "Machine delete successfully",
+          });
+        }
+      });
+    } catch (error) {
+      res.status(200).send({
         message: "Error: " + error,
       });
     }

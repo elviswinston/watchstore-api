@@ -8,9 +8,16 @@ const OrderItemSchema = mongoose.Schema(
       require: false,
       default: null,
     },
-    product: {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: "Product",
+    name: {
+      type: String,
+      require: true,
+    },
+    price: {
+      type: Number,
+      require: true,
+    },
+    image: {
+      type: String,
       require: true,
     },
     amount: {

@@ -4,9 +4,9 @@ const express = require("express");
 const cors = require("cors");
 const createError = require(`http-errors`);
 const app = express();
+const { DB_URI, PORT } = process.env;
 
 const mongoose = require("mongoose");
-const { DB_URI, PORT } = process.env;
 
 app.use(cors());
 app.use(

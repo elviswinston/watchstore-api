@@ -1,4 +1,6 @@
 const { validationResult } = require("express-validator");
+const cloudinary = require("../utils/cloudinary");
+const Product = require("../models/Product");
 
 exports.create = async (req, res) => {
   const errors = validationResult(req);
@@ -8,6 +10,8 @@ exports.create = async (req, res) => {
     });
   } else {
     try {
+      const result = await cloudinary.uploader.upload(req.file.path);
+
       let product = new Product();
       const {
         name,
@@ -24,8 +28,7 @@ exports.create = async (req, res) => {
         dial_color,
         price,
         quantity,
-        image,
-      } = req.body;
+      } = JSON.parse(req.body.data);
 
       product.name = name;
       product.description = description;
@@ -41,6 +44,8 @@ exports.create = async (req, res) => {
       product.dial_color = dial_color;
       product.price = price;
       product.quantity = quantity;
+      product.image = result.secure_url;
+      product.cloudinary_id = result.public_id;
 
       product.save((err, product) => {
         if (err) {
@@ -115,15 +120,29 @@ exports.list = async (req, res) => {
     });
   } else {
     try {
-      Product.find({ status: true }, (err, data) => {
-        if (err) {
-          return res.status(400).send({
-            message: "Get list product failed",
-          });
-        } else {
-          res.status(200).send(data);
-        }
-      });
+      Product.find()
+        .lean()
+        .populate("brand", "name")
+        .populate("glass", "name")
+        .populate("machine", "name")
+        .populate("strap", "name")
+        .exec((err, data) => {
+          if (err) {
+            return res.status(400).send({
+              message: "Get list product failed",
+            });
+          } else {
+            data = data.map((item) => ({
+              ...item,
+              brand: item.brand.name,
+              glass: item.glass.name,
+              machine: item.machine.name,
+              strap: item.strap.name,
+            }));
+
+            res.status(200).send(data);
+          }
+        });
     } catch (error) {
       res.status(400).send({
         message: "Error: " + error,

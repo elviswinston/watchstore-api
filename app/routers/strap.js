@@ -6,6 +6,6 @@ const strapController = require("../controllers/strap");
 router.get("/", strapController.list);
 router.post("/", strapController.create);
 router.put("/:strapId", strapController.update);
-// router.put("/updateStatus/:strapId", strapController.updateStatus);
+router.delete("/:strapId", strapController.delete);
 
 module.exports = router;
