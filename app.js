@@ -32,7 +32,7 @@ app
     let httpError = createError(...message);
     res.status(httpError.statusCode || 500).send(httpError);
   });
-
+console.log(DB_URI);
 mongoose.connect(DB_URI);
 mongoose.connection.on("connected", () => {
   console.log("Connected to MongoDB Atlas");

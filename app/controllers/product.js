@@ -3,6 +3,7 @@ const cloudinary = require("../utils/cloudinary");
 const Product = require("../models/Product");
 
 exports.create = async (req, res) => {
+  console.log("create product");
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).send({
@@ -10,9 +11,9 @@ exports.create = async (req, res) => {
     });
   } else {
     try {
+      console.log("req.file: ", req.file);
       const result = await cloudinary.uploader.upload(req.file.path);
-
-      let product = new Product();
+      console.log("req.body: ", req.body);
       const {
         name,
         description,
@@ -28,7 +29,26 @@ exports.create = async (req, res) => {
         dial_color,
         price,
         quantity,
-      } = JSON.parse(req.body.data);
+      } = req.body;
+
+      console.log(
+        name,
+        description,
+        sku,
+        origin,
+        sex,
+        brand_id,
+        glass_id,
+        machine_id,
+        strap_id,
+        dial_diameter,
+        dial_thickness,
+        dial_color,
+        price,
+        quantity
+      );
+
+      let product = new Product();
 
       product.name = name;
       product.description = description;
@@ -49,6 +69,7 @@ exports.create = async (req, res) => {
 
       product.save((err, product) => {
         if (err) {
+          console.log("err", err);
           return res.status(400).send({
             message: "Create failed",
           });
@@ -59,8 +80,9 @@ exports.create = async (req, res) => {
         }
       });
     } catch (error) {
+      console.log(error);
       res.status(400).send({
-        message: "Error: " + error,
+        message: "Error: " + error.message,
       });
     }
   }
@@ -196,6 +218,40 @@ exports.listByBrand = (req, res) => {
     } catch (error) {
       res.status(400).send({
         message: "Error: " + error,
+      });
+    }
+  }
+};
+
+exports.remove = (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({
+      message: errors.array(),
+    });
+  } else {
+    const productId = req.params.productId;
+    if (productId) {
+      try {
+        console.log(productId);
+        Product.findByIdAndRemove(productId, function (err) {
+          if (err) {
+            res.status(400).send({
+              message: "Error: " + error,
+            });
+
+            return;
+          }
+        });
+        res.status(200).send({ message: "delete successfully" });
+      } catch (error) {
+        res.status(400).send({
+          message: "Error: " + error,
+        });
+      }
+    } else {
+      res.status(400).send({
+        message: "productId empty",
       });
     }
   }

@@ -128,13 +128,17 @@ exports.list = async (req, res) => {
               message: "Get list cart failed",
             });
           } else {
-            data = data.map((item) => ({
-              ...item,
-              product_id: item.product._id,
-              product_name: item.product.name,
-              product_price: item.product.price,
-              image: item.product.image,
-            }));
+            data = data.filter((item) => item.product != null);
+
+            data = data.map((item) => {
+              return {
+                ...item,
+                product_id: item.product._id,
+                product_name: item.product.name,
+                product_price: item.product.price,
+                image: item.product.image,
+              };
+            });
             return res.status(200).send(data);
           }
         });
