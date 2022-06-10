@@ -4,6 +4,7 @@ const router = express.Router();
 const orderController = require("../controllers/order");
 
 router.get("/:accountId", orderController.list);
+router.get("/", orderController.all);
 router.post("/", orderController.create);
 router.get("/detail/:orderId", orderController.detail);
 router.put("/confirm/:orderId", orderController.confirm);

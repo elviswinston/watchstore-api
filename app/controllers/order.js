@@ -4,6 +4,31 @@ const { default: mongoose } = require("mongoose");
 const Order = require("../models/order");
 const OrderItem = require("../models/orderItem");
 
+exports.all = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).send({
+      message: errors.array(),
+    });
+  } else {
+    try {
+      Order.find((err, data) => {
+        if (err) {
+          return res.status(400).send({
+            message: "Get list order failed",
+          });
+        } else {
+          return res.status(200).send(data);
+        }
+      });
+    } catch (error) {
+      res.status(200).send({
+        message: "Error: " + error,
+      });
+    }
+  }
+};
+
 exports.list = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
